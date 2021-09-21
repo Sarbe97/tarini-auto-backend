@@ -8,9 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ProductDocument, Product } from '../schemas/product.schema';
+import {  Product } from './product.schema';
 
 @Controller('product')
 export class ProductController {
@@ -19,7 +17,7 @@ export class ProductController {
   @Post()
   create(@Body() productDto: Product) {
     console.log('Create');
-    // console.log(productDto._id)
+    console.log(productDto)
     return this.productService.create(productDto);
   }
 
@@ -28,6 +26,13 @@ export class ProductController {
     console.log('get');
     return this.productService.findAll();
   }
+
+  @Get('key')
+  key() {
+    console.log('key')
+    return this.productService.getNextSeq();
+  }
+
   @Get('search/:qry')
   search(@Param('qry') qry: string) {
     console.log(qry);
