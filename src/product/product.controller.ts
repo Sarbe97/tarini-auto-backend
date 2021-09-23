@@ -46,7 +46,7 @@ export class ProductController {
   @Get(':sku')
   findBySKU(@Param('sku') sku: string) {
     console.log(sku)
-    return this.productService.findBySKU(sku);
+    return this.productService.findByProductId(sku);
   }
 
   @Patch(':id')

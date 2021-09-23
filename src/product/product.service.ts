@@ -17,11 +17,10 @@ export class ProductService {
     return this.counterService.getNextSequence('PRODUCT');
   }
 
-  create(productDto: Product): Promise<Product> {
-    // let nextSeq = this.counterService.getNextSequence('PRODUCT');
-    // let productId= "PRD"+String(nextSeq).padStart(7,'0');
-    // productDto.sku = productId;
-    // productDto._id = productDto.sku;
+  async create(productDto: Product): Promise<Product> {
+    let nextSeq = await this.counterService.getNextSequence('PRODUCT');
+    let productId = 'PRD' + String(nextSeq).padStart(7, '0');
+    productDto._id = productId;
     const createdPrd = new this.productModel(productDto);
     return createdPrd.save();
   }
@@ -30,9 +29,9 @@ export class ProductService {
     return this.productModel.find().exec();
   }
 
-  findOne(id: number) {
-    return this.productModel.findById(id);
-  }
+  // findOne(id: number) {
+  //   return this.productModel.findById(id);
+  // }
 
   search(txt: string) {
     return this.productModel
@@ -45,8 +44,8 @@ export class ProductService {
       .exec();
   }
 
-  findBySKU(sku: string) {
-    return this.productModel.findOne({ sku: sku }).exec();
+  findByProductId(id: string) {
+    return this.productModel.findById(id).exec();
   }
 
   update(id: string, productDto: Product) {

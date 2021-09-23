@@ -22,4 +22,8 @@ export class OrderdtlService {
   findOne(id: number) {
     return this.orderdtlModel.findById(id);
   }
+
+  removeDetailsByOrderId(orderId:string){
+    this.orderdtlModel.remove({orderId:orderId}).exec();
+  }
 }

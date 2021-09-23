@@ -10,7 +10,7 @@ export type OrderDocument = Order & Document;
 export class Order {
  
   @Prop()
-  orderId: string;
+  _id: string; //OrderId
 
   @Prop()
   subTotal: number;
@@ -31,7 +31,7 @@ export class Order {
   party: Party;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Orderdtl' }],
+    type: [{ type: String, ref: 'Orderdtl' }],
   })
   details: Orderdtl[];
 

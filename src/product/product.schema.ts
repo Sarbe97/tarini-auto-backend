@@ -6,11 +6,11 @@ export type ProductDocument = Product & Document;
 
 @Schema()
 export class Product {
-  // @Prop()
-  // _id: string;
-
   @Prop()
-  sku: string;
+  _id: string; // Product ID
+
+  // @Prop()
+  // sku: string;
 
   @Prop()
   name: string;

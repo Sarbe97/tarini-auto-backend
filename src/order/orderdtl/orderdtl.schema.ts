@@ -7,10 +7,13 @@ export type OrderdtlDocument = Orderdtl & Document;
 @Schema()
 export class Orderdtl {
   @Prop()
+  _id: string; //orderDtl
+
+  @Prop({ type: String, ref: 'Party' })
   orderId: string;
   
   @Prop()
-  sku: string;
+  productId: string;
 
   @Prop()
   name: string;
@@ -18,27 +21,29 @@ export class Orderdtl {
   @Prop()
   desc: string;
 
-  @Prop({ default: 0})
+  @Prop({ default: 0 })
   buy_price: number;
 
-  @Prop({ default: 0})
+  @Prop({ default: 0 })
   price: number;
 
-
+  @Prop({ default: 0 })
   sell_price: number;
 
-  @Prop({ default: 0})
+  @Prop({ default: 0 })
   avail_qty: number;
+
+  @Prop()
+  ord_qty: number;
   
   @Prop()
-  quantity: number;
+  uom: string;
 
   @Prop()
   lineTotal: number;
 
   @Prop()
   __v: number;
-  
 }
 
 export const OrderdtlSchema = SchemaFactory.createForClass(Orderdtl);
