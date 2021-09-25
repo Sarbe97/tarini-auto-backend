@@ -11,6 +11,8 @@ export class Product {
 
   // @Prop()
   // sku: string;
+  @Prop({ default: false })
+  active: boolean;
 
   @Prop()
   name: string;
@@ -33,8 +35,8 @@ export class Product {
   @Prop()
   uom: string;
 
-  @Prop({ default: false })
-  active: boolean;
+  @Prop({ default: 0 })
+  threshold: number;
 
   @Prop({ default: new Date() })
   created: Date;
@@ -42,8 +44,7 @@ export class Product {
   @Prop({ default: new Date() })
   updated: Date;
 
-
-  @Prop({select:false})
+  @Prop({ select: false })
   __v: number;
 }
 

@@ -46,6 +46,7 @@ export class OrderService {
 
   async saveOrder(orderDto: OrderDto, action: string): Promise<Order> {
     console.log('saveOrder');
+    console.log(orderDto._id);
     let newOrder: Order = new Order();
     newOrder.details = [];
 
@@ -69,16 +70,17 @@ export class OrderService {
         this.orderdtlService.removeDetailsByOrderId(orderDto._id);
       }
     } else {
+      console.log(4);
       // if new, create new orderId
       isOrderNew = true;
       let orderSeq = await this.counterService.getNextSequence('ORDER');
-      let orderIdNxt = 'OSL' + String(orderSeq).padStart(7, '0');
+      let orderIdNxt = (orderDto.type == "BUY"? "OB" : "OS") + String(orderSeq).padStart(7, '0');
       newOrder._id = orderIdNxt;
     }
-
+    newOrder.type = orderDto.type;
     newOrder.status = action == 'SAVE' ? 'SAVED' : 'SUBMITTED';
 
-    let subTotal=0;
+    let subTotal = 0;
     for (let i = 0; i < orderDto.details.length; i++) {
       let itemDto = orderDto.details[i];
       let dbPrd = await this.productService.findByProductId(itemDto.productId);
@@ -108,7 +110,7 @@ export class OrderService {
     newOrder.subTotal = subTotal;
     // newOrder.party = orderDto.party;
 
-    let dbOrder1:Order;
+    let dbOrder1: Order;
     if (isOrderNew) {
       const orderPrd = new this.orderModel(newOrder);
       dbOrder1 = await orderPrd.save();
@@ -118,6 +120,12 @@ export class OrderService {
         newOrder,
       );
     }
+    console.log( newOrder);
+
+    if (newOrder.status == 'SUBMITTED') {
+      this.productService.syncInventory(newOrder, newOrder.type);
+    }
+
     return this.findByOrder(newOrder._id);
   }
 
@@ -162,7 +170,7 @@ export class OrderService {
     let orderDb = await this.orderModel
       .findById(orderId)
       .populate({ path: 'details' })
-      .populate({path:'party'})
+      // .populate({path:'party'})
       .lean();
 
     if (orderDb.status != 'SUBMITTED') {
@@ -180,6 +188,9 @@ export class OrderService {
         }
       }
     }
+    // console.log('Fetched again: ');
+
+    console.log(orderDb);
     return orderDb;
   }
 }

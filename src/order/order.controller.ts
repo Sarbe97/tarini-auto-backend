@@ -16,12 +16,12 @@ export class OrderController {
     return this.orderService.findByOrder(orderId);
   }
   @Post('/sell/submit')
-  submitOrder(@Body() orderDto: Order) {
+  submitOrder(@Body() orderDto: OrderDto) {
     console.log("Submit Order");
     console.log(orderDto)
     // orderDto.status = 'SUBMITTED';
     orderDto.type = 'SELL';
-    return this.orderService.submitOrder(orderDto);
+    return this.orderService.saveOrder(orderDto,"SUBMIT");
   }
 
   @Post('/sell/save')
@@ -33,14 +33,19 @@ export class OrderController {
     return this.orderService.saveOrder(orderDto,"SAVE");
   }
 
-  // Transactions
-  // @Get('transactions')
-  // findAllTransactions() {
-  //   return this.transactionsService.findAll();
-  // }
+  @Post('/buy/submit')
+  submitBuyOrder(@Body() orderDto: OrderDto) {
+    console.log("Submit Order");
+    console.log(orderDto)
+    orderDto.type = 'BUY';
+    return this.orderService.saveOrder(orderDto,"SUBMIT");
+  }
 
-  // @Get(':id/transactions')
-  // findAllInventoryTransactions() {
-  //   return this.transactionsService.findAll();
-  // }
+  @Post('/buy/save')
+  saveBuyOrder(@Body() orderDto: OrderDto) {
+    console.log("Save Order");
+    console.log(orderDto)
+    orderDto.type = 'BUY';
+    return this.orderService.saveOrder(orderDto,"SAVE");
+  }
 }

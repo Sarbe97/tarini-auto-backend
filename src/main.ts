@@ -13,7 +13,7 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  mongoose.set('debug', true);
+  // mongoose.set('debug', true);
   
   await app.listen(3000);
 }

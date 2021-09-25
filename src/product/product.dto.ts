@@ -7,6 +7,7 @@ export class ProductDto {
   sell_price: number;
   avail_qty: number;
   uom: string;
+  threshold:number;
   active: boolean;
   // Order Qty
   ord_qty: number;
