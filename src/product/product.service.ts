@@ -35,7 +35,7 @@ export class ProductService {
 
     // Transacrions
     let trans: Transaction = new Transaction();
-    trans.productID = prdDb._id;
+    trans.productId = prdDb._id;
     trans.orderId = '';
     trans.cur_qty = 0;
     trans.prev_qty = 0;
@@ -91,7 +91,7 @@ export class ProductService {
         .exec();
 
       let trans: Transaction = new Transaction();
-      trans.productID = dtl.productId;
+      trans.productId = dtl.productId;
       trans.orderId = order._id;
       trans.prev_qty = dtl.avail_qty;
       trans.cur_qty = dbPrd.avail_qty;

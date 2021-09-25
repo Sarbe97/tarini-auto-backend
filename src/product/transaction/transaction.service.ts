@@ -17,6 +17,6 @@ export class TransactionService {
     return createdPrd.save();
   }
   findByProductId(prdId: string): Promise<Transaction[]> {
-    return this.transactionModel.find({ productID: prdId }).exec();
+    return this.transactionModel.find({ productId: prdId }).exec();
   }
 }

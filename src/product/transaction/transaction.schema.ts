@@ -6,7 +6,7 @@ export type TransactionDocument = Transaction & Document;
 @Schema()
 export class Transaction {
   @Prop()
-  productID: string;
+  productId: string;
 
   @Prop()
   orderId: string;
