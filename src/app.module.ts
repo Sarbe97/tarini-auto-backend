@@ -10,7 +10,7 @@ import { CounterModule } from './counter/counter.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://storeadmin:storeadmin123@tarinicluster0.mnxhs.mongodb.net/autostore?retryWrites=true&w=majority',
+      'mongodb+srv://storeadmin:xxxxxxxxx@tarinicluster0.mnxhs.mongodb.net/autostore?retryWrites=true&w=majority',
       {
         useFindAndModify: false,
         useUnifiedTopology: true,
