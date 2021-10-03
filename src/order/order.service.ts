@@ -8,6 +8,8 @@ import { Orderdtl } from './orderdtl/orderdtl.schema';
 import { ProductService } from '../product/product.service';
 import { Product } from '../product/product.schema';
 import { OrderDto } from './order.dto';
+import { TransactionService } from '../product/transaction/transaction.service';
+import { PartyService } from '../party/party.service';
 
 @Injectable()
 export class OrderService {
@@ -17,37 +19,26 @@ export class OrderService {
     private counterService: CounterService,
     private orderdtlService: OrderdtlService,
     private productService: ProductService,
+    private transactionService: TransactionService,
+    private partyService: PartyService,
   ) {}
 
-  async submitOrder(orderDto: Order): Promise<Order> {
-    // if (orderDto._id != '' && orderDto._id !== undefined) {
-    //   // saved or submitted
-    //   let dbOrder = await this.orderModel
-    //     .findOne({ orderId: orderDto._id })
-    //     .lean();
-
-    //   if (dbOrder != null && dbOrder.status == 'SUBMITTED') {
-    //     // if submitted
-    //     throw new HttpException('Can not resubmit', HttpStatus.FORBIDDEN);
-    //   } else {
-    //     // if  saved
-    //     orderDto.status == 'SUBMITTED'; // if saved status , change to submitted
-    //   }
-    // } else {
-    //   // if new, create new orderId
-    //   let orderSeq = await this.counterService.getNextSequence('ORDER');
-    //   let orderIdNxt = 'OSL' + String(orderSeq).padStart(7, '0');
-    //   orderDto._id = orderIdNxt;
-    // }
-
-    // return this.saveToDB(orderDto);
-    return null;
+  async reset() {
+    await this.productService.removeMany();
+    await this.orderdtlService.removeMany();
+    await this.removeMany();
+    await this.orderdtlService.removeMany();
+    await this.transactionService.removeMany();
+    // await this.connection.db.dropCollection("orderDtls");
+    // await this.connection.db.dropCollection("orders");
+    // await this.connection.db.dropCollection("transactions");
   }
 
   async saveOrder(orderDto: OrderDto, action: string): Promise<Order> {
     console.log('saveOrder');
     console.log(orderDto._id);
     let newOrder: Order = new Order();
+   
     newOrder.details = [];
 
     let isOrderNew: Boolean = false;
@@ -76,9 +67,17 @@ export class OrderService {
       let orderSeq = await this.counterService.getNextSequence('ORDER');
       let orderIdNxt = (orderDto.type == "BUY"? "OB" : "OS") + String(orderSeq).padStart(7, '0');
       newOrder._id = orderIdNxt;
+      newOrder.created = new Date();
     }
     newOrder.type = orderDto.type;
     newOrder.status = action == 'SAVE' ? 'SAVED' : 'SUBMITTED';
+    newOrder.updated = new Date();
+    // Party Details
+
+    // newOrder.party = orderDto.party;
+    console.log(orderDto.party)
+    let partyDtl = await this.partyService.findByGstn(orderDto.party);
+    newOrder.party = partyDtl;
 
     let subTotal = 0;
     for (let i = 0; i < orderDto.details.length; i++) {
@@ -96,6 +95,7 @@ export class OrderService {
         newOdtl.buy_price = dbPrd.buy_price;
         newOdtl.price = dbPrd.price;
         newOdtl.sell_price = dbPrd.sell_price;
+        newOdtl.gst = dbPrd.gst;
         newOdtl.avail_qty = dbPrd.avail_qty;
         newOdtl.ord_qty = itemDto.ord_qty;
         newOdtl.uom = dbPrd.uom;
@@ -110,57 +110,27 @@ export class OrderService {
     newOrder.subTotal = subTotal;
     // newOrder.party = orderDto.party;
 
-    let dbOrder1: Order;
+    // let dbOrder1: Order;
     if (isOrderNew) {
       const orderPrd = new this.orderModel(newOrder);
-      dbOrder1 = await orderPrd.save();
+      newOrder = await orderPrd.save();
     } else {
-      dbOrder1 = await this.orderModel.findByIdAndUpdate(
+      newOrder = await this.orderModel.findByIdAndUpdate(
         newOrder._id,
         newOrder,
+        { returnDocument: 'after' }
       );
     }
+    newOrder = await this.findByOrder(newOrder._id)
     console.log( newOrder);
 
     if (newOrder.status == 'SUBMITTED') {
       this.productService.syncInventory(newOrder, newOrder.type);
     }
 
-    return this.findByOrder(newOrder._id);
+    return newOrder;
   }
 
-  // async saveToDB(orderDto: Order) {
-  //   let oDetailsDto = orderDto.details;
-  //   orderDto.details = [];
-
-  //   for (let i = 0; i < oDetailsDto.length; i++) {
-  //     let odtl = oDetailsDto[i];
-  //     let dbPrd = await this.productService.findBySKU(odtl._id);
-
-  //     // Create Order Details
-  //     if (dbPrd != null) {
-  //       let newOdtl: Orderdtl = new Orderdtl();
-  //       newOdtl.orderId = orderDto._id;
-  //       newOdtl.productId = dbPrd._id;
-  //       newOdtl.name = dbPrd.name;
-  //       newOdtl.desc = dbPrd.desc;
-  //       newOdtl.buy_price = dbPrd.buy_price;
-  //       newOdtl.price = dbPrd.price;
-  //       newOdtl.sell_price = dbPrd.sell_price;
-  //       newOdtl.avail_qty = dbPrd.avail_qty;
-  //       newOdtl.quantity = odtl.quantity;
-  //       newOdtl.lineTotal = dbPrd.price * odtl.quantity;
-
-  //       let oDtlDb = await this.orderdtlService.create(newOdtl);
-  //       orderDto.details.push(oDtlDb);
-  //     }
-  //   }
-  //   const orderPrd = new this.orderModel(orderDto);
-  //   let dbOrder1 = await orderPrd.save();
-  //   console.log('after saving to DB');
-  //   console.log(dbOrder1);
-  //   return dbOrder1;
-  // }
 
   findAll(): Promise<Order[]> {
     return this.orderModel.find().exec();
@@ -170,7 +140,7 @@ export class OrderService {
     let orderDb = await this.orderModel
       .findById(orderId)
       .populate({ path: 'details' })
-      // .populate({path:'party'})
+      .populate({path:'party'})
       .lean();
 
     if (orderDb.status != 'SUBMITTED') {
@@ -192,5 +162,9 @@ export class OrderService {
 
     console.log(orderDb);
     return orderDb;
+  }
+
+  async removeMany(){
+    await this.orderModel.deleteMany({__v:{$gte:0}})
   }
 }

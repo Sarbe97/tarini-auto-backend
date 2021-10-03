@@ -5,6 +5,10 @@ import * as mongoose from 'mongoose';
 export type TransactionDocument = Transaction & Document;
 @Schema()
 export class Transaction {
+
+  @Prop()
+  _id: string; // Product ID
+
   @Prop()
   productId: string;
 
@@ -13,6 +17,9 @@ export class Transaction {
 
   @Prop()
   prev_qty: number;
+
+  @Prop()
+  ord_qty: number;
 
   @Prop()
   cur_qty: number;
@@ -26,18 +33,13 @@ export class Transaction {
   @Prop()
   sell_price: number;
 
-  
   @Prop()
   type: string;
 
-  
-
-  @Prop({ default: new Date() })
+  @Prop()
   created: Date;
 
-  @Prop({ default: new Date() })
+  @Prop()
   updated: Date;
-
-  
 }
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);

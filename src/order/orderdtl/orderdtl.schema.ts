@@ -31,6 +31,9 @@ export class Orderdtl {
   sell_price: number;
 
   @Prop({ default: 0 })
+  gst: number;
+
+  @Prop({ default: 0 })
   avail_qty: number;
 
   @Prop()

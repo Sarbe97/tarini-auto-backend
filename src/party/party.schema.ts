@@ -6,10 +6,15 @@ export type PartyDocument = Party & Document;
 @Schema()
 export class Party {
   @Prop()
+  _id: string; //gstin
+
+  @Prop()
   name: string;
   @Prop()
   phoneNbr: string;
   @Prop()
-  gstNbr: string;
+  gstn: string;
+  @Prop()
+  type: string; // CUS-customer, VEN-Vendor
 }
 export const PartySchema = SchemaFactory.createForClass(Party);

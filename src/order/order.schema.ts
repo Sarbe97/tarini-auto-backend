@@ -8,7 +8,6 @@ export type OrderDocument = Order & Document;
 
 @Schema()
 export class Order {
- 
   @Prop()
   _id: string; //OrderId
 
@@ -27,8 +26,10 @@ export class Order {
   @Prop({ default: new Date() })
   updated: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Party' })
+  @Prop({ type: String, ref: 'Party' })
+  // @Prop()
   party: Party;
+
 
   @Prop({
     type: [{ type: String, ref: 'Orderdtl' }],

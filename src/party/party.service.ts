@@ -10,12 +10,18 @@ export class PartyService {
     @InjectConnection() private connection: Connection,
   ) {}
 
-  create(party: Party): Promise<Party> {
-    const partyMdl = new this.partyModel(party);
+  create(partyDto: Party): Promise<Party> {
+    partyDto._id = partyDto.gstn;
+    console.log(partyDto)
+    const partyMdl = new this.partyModel(partyDto);
     return partyMdl.save();
   }
 
-  findOne(id: number) {
-    return this.partyModel.findById(id);
+  findByGstn(gstn: string) {
+    return this.partyModel.findById(gstn).exec();
+  }
+
+  findAll() {
+    return this.partyModel.find().exec();
   }
 }

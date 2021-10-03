@@ -11,6 +11,7 @@ export class OrderdtlService {
   ) {}
 
   create(odtl: Orderdtl): Promise<Orderdtl> {
+    
     const createdPrd = new this.orderdtlModel(odtl);
     return createdPrd.save();
   }
@@ -23,7 +24,11 @@ export class OrderdtlService {
     return this.orderdtlModel.findById(id);
   }
 
-  removeDetailsByOrderId(orderId:string){
-    this.orderdtlModel.remove({orderId:orderId}).exec();
+  removeDetailsByOrderId(orderId: string) {
+    this.orderdtlModel.remove({ orderId: orderId }).exec();
+  }
+
+  async removeMany() {
+    await this.orderdtlModel.deleteMany({ __v: { $gte: 0 } });
   }
 }

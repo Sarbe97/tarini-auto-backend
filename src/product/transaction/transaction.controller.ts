@@ -35,4 +35,10 @@ export class TransactionController {
     console.log(prdId)
     return this.transactionService.findByProductId(prdId);
   } 
+
+  @Get('find/:bydate')
+  findTransactionsByDate(@Param('bydate') bydate: string) {
+    console.log("bydate")
+    return this.transactionService.findByDate();
+  }
 }

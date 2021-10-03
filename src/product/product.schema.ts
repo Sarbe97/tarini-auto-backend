@@ -11,7 +11,7 @@ export class Product {
 
   // @Prop()
   // sku: string;
-  @Prop({ default: false })
+  @Prop({ default: true })
   active: boolean;
 
   @Prop()
@@ -32,16 +32,19 @@ export class Product {
   @Prop({ default: 0 })
   avail_qty: number;
 
+  @Prop({ default: 0 })
+  gst: number;
+
   @Prop()
   uom: string;
 
   @Prop({ default: 0 })
   threshold: number;
 
-  @Prop({ default: new Date() })
+  @Prop()
   created: Date;
 
-  @Prop({ default: new Date() })
+  @Prop()
   updated: Date;
 
   @Prop({ select: false })

@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CounterModule } from '../counter/counter.module';
 import { OrderdtlModule } from './orderdtl/orderdtl.module';
 import { ProductModule } from '../product/product.module';
+import { TransactionModule } from '../product/transaction/transaction.module';
+import { PartyModule } from '../party/party.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { ProductModule } from '../product/product.module';
     CounterModule,
     OrderdtlModule,
     ProductModule,
+    TransactionModule,
+    PartyModule
   ],
   controllers: [OrderController],
   providers: [OrderService],

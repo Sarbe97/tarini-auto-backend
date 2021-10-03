@@ -7,6 +7,7 @@ import { Party, PartySchema } from './party.schema';
 @Module({
   imports:[MongooseModule.forFeature([{ name: Party.name, schema: PartySchema }])],
   controllers: [PartyController],
-  providers: [PartyService]
+  providers: [PartyService],
+  exports:[PartyService]
 })
 export class PartyModule {}

@@ -26,13 +26,7 @@ export class ProductController {
     console.log('get');
     return this.productService.findAll();
   }
-
-  @Get('key')
-  key() {
-    console.log('key')
-    return this.productService.getNextSeq();
-  }
-
+ 
   @Get('search/:qry')
   search(@Param('qry') qry: string) {
     console.log(qry);
@@ -42,11 +36,10 @@ export class ProductController {
   // findOne(@Param('id') id: string) {
   //   return this.productService.findOne(+id);
   // }
-
-  @Get(':sku')
-  findBySKU(@Param('sku') sku: string) {
-    console.log(sku)
-    return this.productService.findByProductId(sku);
+  
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.productService.findByProductId(id);
   }
 
   @Patch(':id')
@@ -61,6 +54,7 @@ export class ProductController {
     return this.productService.remove(+id);
   }
 
+ 
   
 
 }

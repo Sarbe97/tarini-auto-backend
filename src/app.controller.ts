@@ -9,4 +9,11 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+
+  @Get("/reset")
+  async resetData(){
+    console.log("resetData")
+    await this.appService.reset();
+    return "Success"
+  }
 }
