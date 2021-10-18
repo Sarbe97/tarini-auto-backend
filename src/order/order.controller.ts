@@ -20,7 +20,7 @@ export class OrderController {
   }
   @Get(':orderId')
   findOrder(@Param('orderId') orderId: string) {
-    return this.orderService.findByOrder(orderId);
+    return this.orderService.findOrder(orderId);
   }
   @Post('/sell/submit')
   submitOrder(@Body() orderDto: OrderDto) {

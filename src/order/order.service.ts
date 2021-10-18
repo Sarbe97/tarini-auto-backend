@@ -38,7 +38,7 @@ export class OrderService {
     console.log('saveOrder');
     console.log(orderDto._id);
     let newOrder: Order = new Order();
-   
+
     newOrder.details = [];
 
     let isOrderNew: Boolean = false;
@@ -65,7 +65,9 @@ export class OrderService {
       // if new, create new orderId
       isOrderNew = true;
       let orderSeq = await this.counterService.getNextSequence('ORDER');
-      let orderIdNxt = (orderDto.type == "BUY"? "OB" : "OS") + String(orderSeq).padStart(7, '0');
+      let orderIdNxt =
+        (orderDto.type == 'BUY' ? 'OB' : 'OS') +
+        String(orderSeq).padStart(7, '0');
       newOrder._id = orderIdNxt;
       newOrder.created = new Date();
     }
@@ -75,7 +77,7 @@ export class OrderService {
     // Party Details
 
     // newOrder.party = orderDto.party;
-    console.log(orderDto.party)
+    console.log(orderDto.party);
     let partyDtl = await this.partyService.findByGstn(orderDto.party);
     newOrder.party = partyDtl;
 
@@ -118,11 +120,11 @@ export class OrderService {
       newOrder = await this.orderModel.findByIdAndUpdate(
         newOrder._id,
         newOrder,
-        { returnDocument: 'after' }
+        { returnDocument: 'after' },
       );
     }
-    newOrder = await this.findByOrder(newOrder._id)
-    console.log( newOrder);
+    newOrder = await this.findOrder(newOrder._id);
+    console.log(newOrder);
 
     if (newOrder.status == 'SUBMITTED') {
       this.productService.syncInventory(newOrder, newOrder.type);
@@ -131,18 +133,18 @@ export class OrderService {
     return newOrder;
   }
 
-
   findAll(): Promise<Order[]> {
     return this.orderModel.find().exec();
   }
-
-  async findByOrder(orderId: string) {
-    let orderDb = await this.orderModel
-      .findById(orderId)
+  findOrderById(orderId: string) {
+    return this.orderModel.findById(orderId)
       .populate({ path: 'details' })
-      .populate({path:'party'})
+      .populate({ path: 'party' })
       .lean();
+  }
 
+  async findOrder(orderId: string) {
+    let orderDb = await this.findOrderById(orderId);
     if (orderDb.status != 'SUBMITTED') {
       // let orderDtlsDb = orderDb.details;
       // orderDb.details = [];
@@ -164,7 +166,7 @@ export class OrderService {
     return orderDb;
   }
 
-  async removeMany(){
-    await this.orderModel.deleteMany({__v:{$gte:0}})
+  async removeMany() {
+    await this.orderModel.deleteMany({ __v: { $gte: 0 } });
   }
 }
