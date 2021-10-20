@@ -21,7 +21,7 @@ export class OrderService {
     private productService: ProductService,
     private transactionService: TransactionService,
     private partyService: PartyService,
-  ) {}
+  ) { }
 
   async reset() {
     await this.productService.removeMany();
@@ -37,17 +37,18 @@ export class OrderService {
   async saveOrder(orderDto: OrderDto, action: string): Promise<Order> {
     console.log('saveOrder');
     console.log(orderDto._id);
+    let isOrderNew: Boolean = false;
     let newOrder: Order = new Order();
-
     newOrder.details = [];
 
-    let isOrderNew: Boolean = false;
-    if (orderDto._id != '' && orderDto._id !== undefined) {
+
+    if (orderDto._id != '' && orderDto._id !== undefined) { // Not new
       console.log(1);
       isOrderNew = false;
-      // saved or submitted
+      // Get Order Details from DB
       let dbOrder = await this.orderModel.findById(orderDto._id).lean();
       console.log(dbOrder);
+      // saved or submitted
       if (dbOrder != null && dbOrder.status == 'SUBMITTED') {
         // if submitted
         console.log(2);
@@ -56,8 +57,7 @@ export class OrderService {
         console.log(3);
         // if  saved
         newOrder._id = orderDto._id;
-
-        // clear details if present for already saved
+        // clear details if in saved status
         this.orderdtlService.removeDetailsByOrderId(orderDto._id);
       }
     } else {
@@ -65,8 +65,7 @@ export class OrderService {
       // if new, create new orderId
       isOrderNew = true;
       let orderSeq = await this.counterService.getNextSequence('ORDER');
-      let orderIdNxt =
-        (orderDto.type == 'BUY' ? 'OB' : 'OS') +
+      let orderIdNxt = (orderDto.type == 'BUY' ? 'OB' : 'OS') +
         String(orderSeq).padStart(7, '0');
       newOrder._id = orderIdNxt;
       newOrder.created = new Date();
@@ -74,12 +73,12 @@ export class OrderService {
     newOrder.type = orderDto.type;
     newOrder.status = action == 'SAVE' ? 'SAVED' : 'SUBMITTED';
     newOrder.updated = new Date();
-    // Party Details
 
+    // Party Details
     // newOrder.party = orderDto.party;
-    console.log(orderDto.party);
-    let partyDtl = await this.partyService.findByGstn(orderDto.party);
-    newOrder.party = partyDtl;
+    // console.log(orderDto.partyGstn);
+    // let partyDtl = await this.partyService.findByGstn(orderDto.partyGstn);
+    newOrder.partyGstn = orderDto.partyGstn;
 
     let subTotal = 0;
     for (let i = 0; i < orderDto.details.length; i++) {
@@ -88,6 +87,10 @@ export class OrderService {
 
       // Create Order Details
       if (dbPrd != null) {
+        // if (itemDto.ord_qty > dbPrd.avail_qty) {
+        //   throw new HttpException("Item-" + (i + 1) + " has less quaity available", HttpStatus.FORBIDDEN)
+        // }
+
         let newOdtl: Orderdtl = new Orderdtl();
         newOdtl._id = newOrder._id + '_' + i;
         newOdtl.orderId = newOrder._id;
@@ -110,7 +113,6 @@ export class OrderService {
     }
 
     newOrder.subTotal = subTotal;
-    // newOrder.party = orderDto.party;
 
     // let dbOrder1: Order;
     if (isOrderNew) {
@@ -139,27 +141,46 @@ export class OrderService {
   findOrderById(orderId: string) {
     return this.orderModel.findById(orderId)
       .populate({ path: 'details' })
-      .populate({ path: 'party' })
+      //.populate({ path: 'party' })
       .lean();
   }
 
   async findOrder(orderId: string) {
     let orderDb = await this.findOrderById(orderId);
-    if (orderDb.status != 'SUBMITTED') {
-      // let orderDtlsDb = orderDb.details;
-      // orderDb.details = [];
+    console.log(orderDb)
+    if (orderDb != null && orderDb.status == 'SAVED') {
       let dbPrd: Product;
+      let newOrderDetails = []
       for (let i = 0; i < orderDb.details.length; i++) {
-        let newOdtl = orderDb.details[i];
-        dbPrd = await this.productService.findByProductId(newOdtl.productId);
+        let oDtl = orderDb.details[i];
+        dbPrd = await this.productService.findByProductId(oDtl.productId);
+
         if (dbPrd != null) {
-          newOdtl.buy_price = dbPrd.buy_price;
-          newOdtl.price = dbPrd.price;
-          newOdtl.sell_price = dbPrd.sell_price;
-          newOdtl.avail_qty = dbPrd.avail_qty;
+          if (orderDb.type != 'BUY') {
+            if (dbPrd.avail_qty == 0 || !dbPrd.active) {
+              oDtl.ord_qty = dbPrd.avail_qty;
+              continue;
+            }
+            if (oDtl.ord_qty > dbPrd.avail_qty) {
+              oDtl.ord_qty = dbPrd.avail_qty;
+            }
+          }
+
+          oDtl.buy_price = dbPrd.buy_price;
+          oDtl.price = dbPrd.price;
+          oDtl.sell_price = dbPrd.sell_price;
+          oDtl.avail_qty = dbPrd.avail_qty;
+
+         
+
+          newOrderDetails.push(oDtl)
+
         }
       }
+      orderDb.details = newOrderDetails;
     }
+    // party
+    // if(orderDb)
     // console.log('Fetched again: ');
 
     console.log(orderDb);

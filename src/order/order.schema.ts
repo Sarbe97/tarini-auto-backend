@@ -26,9 +26,9 @@ export class Order {
   @Prop({ default: new Date() })
   updated: Date;
 
-  @Prop({ type: String, ref: 'Party' })
-  // @Prop()
-  party: Party;
+  // @Prop({ type: String, ref: 'Party' })
+  @Prop()
+  partyGstn: string;
 
 
   @Prop({

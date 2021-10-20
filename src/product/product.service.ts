@@ -36,7 +36,7 @@ export class ProductService {
     trans.buy_price = prdDb.buy_price;
     trans.price = prdDb.price;
     trans.sell_price = prdDb.sell_price;
-    trans.type = 'INITIAL';
+    trans.type = 'ENTRY';
 
     this.transactionService.create(trans);
     return prdDb;

@@ -11,7 +11,7 @@ export class Party {
   @Prop()
   name: string;
   @Prop()
-  phoneNbr: string;
+  phone: string;
   @Prop()
   gstn: string;
   @Prop()

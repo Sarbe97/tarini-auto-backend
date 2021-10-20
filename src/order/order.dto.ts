@@ -6,7 +6,7 @@ export class OrderDto {
   subTotal: number;
   type: string; //SELL/BUY
   status: string; // SAVED,SUBMITTED
-  party: string;
+  partyGstn: string;
   details: ProductDto[];
 
 }
